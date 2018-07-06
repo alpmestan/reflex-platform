@@ -10,9 +10,6 @@
 }:
 
 rec {
-  disableTemplateHaskell = import ./disable-template-haskell.nix {
-    inherit haskellLib fetchFromGitHub;
-  };
   exposeAllUnfoldings = import ./expose-all-unfoldings.nix { };
   textJSString = import ./text-jsstring {
     inherit lib haskellLib fetchFromGitHub hackGet;
