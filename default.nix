@@ -287,8 +287,6 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
               else drv;
         in {
 
-        template-haskell = haskellLib.doJailbreak super.template-haskell;
-
         ########################################################################
         # Reflex packages
         ########################################################################
