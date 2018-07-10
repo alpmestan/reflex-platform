@@ -444,7 +444,7 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
   ghcAndroidAarch64 = (extendHaskellPackages nixpkgsCross.android.aarch64.pkgs.haskell.packages.ghcHEAD).override {
     overrides = lib.foldr lib.composeExtensions (_: _: {}) [
       (optionalExtension enableExposeAllUnfoldings haskellOverlays.exposeAllUnfoldings)
-      haskellOverlays.ghc-8_4
+      haskellOverlays.ghc-head
       haskellOverlays.android
       haskellOverlays.loadSplices
     ];
@@ -452,7 +452,7 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
   ghcAndroidAarch32 = (extendHaskellPackages nixpkgsCross.android.aarch32.pkgs.haskell.packages.ghcHEAD).override {
     overrides = lib.foldr lib.composeExtensions (_: _: {}) [
       (optionalExtension enableExposeAllUnfoldings haskellOverlays.exposeAllUnfoldings)
-      haskellOverlays.ghc-8_4
+      haskellOverlays.ghc-head
       haskellOverlays.android
       haskellOverlays.loadSplices
     ];
@@ -460,7 +460,7 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
   ghcIosSimulator64 = (extendHaskellPackages nixpkgsCross.ios.simulator64.pkgs.haskell.packages.ghcHEAD).override {
     overrides = lib.foldr lib.composeExtensions (_: _: {}) [
       (optionalExtension enableExposeAllUnfoldings haskellOverlays.exposeAllUnfoldings)
-      haskellOverlays.ghc-8_4
+      haskellOverlays.ghc-head
       haskellOverlays.ios
       haskellOverlays.loadSplices
     ];
@@ -468,7 +468,7 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
   ghcIosAarch64 = (extendHaskellPackages nixpkgsCross.ios.aarch64.pkgs.haskell.packages.ghcHEAD).override {
     overrides = lib.foldr lib.composeExtensions (_: _: {}) [
       (optionalExtension enableExposeAllUnfoldings haskellOverlays.exposeAllUnfoldings)
-      haskellOverlays.ghc-8_4
+      haskellOverlays.ghc-head
       haskellOverlays.ios
       haskellOverlays.loadSplices
     ];
@@ -476,7 +476,7 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
   ghcIosAarch32 = (extendHaskellPackages nixpkgsCross.ios.aarch32.pkgs.haskell.packages.ghcHEAD).override {
     overrides = lib.foldr lib.composeExtensions (_: _: {}) [
       (optionalExtension enableExposeAllUnfoldings haskellOverlays.exposeAllUnfoldings)
-      haskellOverlays.ghc-8_4
+      haskellOverlays.ghc-head
       haskellOverlays.ios
       haskellOverlays.loadSplices
     ];
