@@ -353,16 +353,8 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
           rev = "8e3da41c46b5de19942cc7bf421c3deb5117ba7a";
           sha256 = "0ffk5j1db2y1drn0przh4jw9gc3vygwd987wl1g1m3dw7ry4dxy6";
         }) {};
-
         mkDerivation = expr: super.mkDerivation (expr // {
           inherit enableLibraryProfiling;
-          preConfigure = ''
-            ${expr.preConfigure or ""}
-            mkdir -p $out/lib/ghc-8.5/${expr.pname}-${expr.version}/splices
-          '';
-          configureFlags = (expr.configureFlags or []) ++ [
-            "--ghc-option=-save-splices=$out/lib/ghc-8.5/${expr.pname}-${expr.version}/splices/"
-          ];
         });
       };
     };
