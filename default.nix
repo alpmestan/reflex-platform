@@ -367,8 +367,7 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
         useReflexOptimizer
         useTextJSString
         hackGet;
-      nativeHaskellPackages = ghcHEAD;
-      nativeGhc = nixpkgs.haskell.compiler.ghcHEAD;
+      inherit ghcHEAD;
       inherit (nixpkgs) lib;
       androidActivity = hackGet ./android-activity;
     };
