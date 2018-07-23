@@ -23,7 +23,7 @@ rec {
 
   loadSplices = import ./load-splices.nix {
     inherit lib haskellLib fetchFromGitHub;
-    nativeHaskellPackages = ghcSavedSplices;
+    splicedHaskellPackages = ghcSavedSplices;
   };
 
   ghc = import ./ghc.nix { inherit haskellLib; };
