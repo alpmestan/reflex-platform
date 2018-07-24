@@ -19,6 +19,8 @@ rec {
 
   saveSplices = import ./save-splices.nix {
     inherit lib haskellLib fetchFromGitHub;
+    inherit androidActivity;
+    inherit (nixpkgs) jdk;
   };
 
   loadSplices = import ./load-splices.nix {
