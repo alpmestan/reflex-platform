@@ -12,25 +12,6 @@
 }:
 let iosSupport = system != "x86_64-darwin";
     inherit (nixpkgs) lib;
-    globalOverlay = self: super: {
-
-      # need to override cabal2nix to avoid evaluation errors on Android.
-      # https://github.com/NixOS/cabal2nix/pull/344
-      haskellPackages = super.haskellPackages.override (old: {
-        overrides = super.lib.composeExtensions (old.overrides or (_: _: {})) (self_: super_: {
-          cabal2nix = super.haskell.lib.overrideCabal super_.cabal2nix (drv: {
-            src = super.fetchFromGitHub {
-              owner = "NixOS";
-              repo = "cabal2nix";
-              rev = "7c77e7e78a94a72681d9d59e69391feada1085fa";
-              sha256 = "1q2bh0xx3srhh52vkahf9mvplzxnb34k7l75qgivh8izcmghaz54";
-            };
-            doCheck = false;
-          });
-        });
-      });
-
-    };
 
     # overlay for GHC with -load-splices & -save-splices option
     splicesEval = self: super: {
@@ -85,7 +66,7 @@ let iosSupport = system != "x86_64-darwin";
         # Obelisk needs it to for some reason
         allowUnfree = true;
       } // config;
-      overlays = [globalOverlay splicesEval] ++ nixpkgsOverlays;
+      overlays = [splicesEval] ++ nixpkgsOverlays;
     };
     nixpkgs = nixpkgsFunc (nixpkgsArgs // { inherit system; });
     inherit (nixpkgs) fetchurl fetchgit fetchgitPrivate fetchFromGitHub;
@@ -372,16 +353,16 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
       inherit (nixpkgs) lib;
       androidActivity = hackGet ./android-activity;
     };
-    ghcjs8_2Packages = nixpkgs.callPackage (nixpkgs.path + "/pkgs/development/haskell-modules") {
-      ghc = ghc8_2.ghcjs;
-      buildHaskellPackages = ghc8_2.ghcjs.bootPkgs;
+    ghcjs8_2_2Packages = nixpkgs.callPackage (nixpkgs.path + "/pkgs/development/haskell-modules") {
+      ghc = ghc8_2_2.ghcjs;
+      buildHaskellPackages = ghc8_2_2.ghcjs.bootPkgs;
       compilerConfig = nixpkgs.callPackage (nixpkgs.path + "/pkgs/development/haskell-modules/configuration-ghc-8.2.x.nix") { inherit haskellLib; };
       packageSetConfig = nixpkgs.callPackage (nixpkgs.path + "/pkgs/development/haskell-modules/configuration-ghcjs.nix") { inherit haskellLib; };
       inherit haskellLib;
     };
-    ghcjs8_4Packages = nixpkgs.callPackage (nixpkgs.path + "/pkgs/development/haskell-modules") {
-      ghc = ghc8_4.ghcjs;
-      buildHaskellPackages = ghc8_4.ghcjs.bootPkgs;
+    ghcjs8_4_3Packages = nixpkgs.callPackage (nixpkgs.path + "/pkgs/development/haskell-modules") {
+      ghc = ghc8_4_3.ghcjs;
+      buildHaskellPackages = ghc8_4_3.ghcjs.bootPkgs;
       compilerConfig = nixpkgs.callPackage (nixpkgs.path + "/pkgs/development/haskell-modules/configuration-ghc-8.4.x.nix") { inherit haskellLib; };
       packageSetConfig = nixpkgs.callPackage (nixpkgs.path + "/pkgs/development/haskell-modules/configuration-ghcjs.nix") { inherit haskellLib; };
       inherit haskellLib;
@@ -408,7 +389,7 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
       (optionalExtension useTextJSString haskellOverlays.textJSString)
     ];
   };
-  ghcjs = ghcjs8_4;
+  ghcjs = ghcjs8_4_3;
   ghcHEAD = (extendHaskellPackages nixpkgs.pkgs.haskell.packages.ghcHEAD).override {
     overrides = lib.foldr lib.composeExtensions (_: _: {}) [
       (optionalExtension enableExposeAllUnfoldings haskellOverlays.exposeAllUnfoldings)
@@ -512,9 +493,9 @@ in let this = rec {
           foreignLibSmuggleHeaders
           ghc
           ghcHEAD
-          ghc8_4
-          ghc8_2
-          ghc8_0
+          ghc8_4_3
+          ghc8_2_2
+          ghc8_0_2
           ghc7
           ghcIosSimulator64
           ghcIosAarch64
