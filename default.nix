@@ -17,10 +17,7 @@ let iosSupport = system != "x86_64-darwin";
     splicesEval = self: super: {
       haskell = super.haskell // {
         compiler = super.haskell.compiler // {
-          ghcSplices = (super.haskell.compiler.integer-simple.ghc843.override rec {
-            bootPkgs = super.buildPackages.haskell.packages.integer-simple.ghc843;
-            inherit (bootPkgs) alex happy hscolour;
-          }).overrideAttrs (drv: rec {
+          ghcSplices = super.haskell.compiler.integer-simple.ghc843.overrideAttrs (drv: rec {
             patches = (drv.patches or [])
                     ++ [ ./splices.patch
                          ./haddock.patch ];
