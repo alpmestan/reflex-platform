@@ -17,8 +17,8 @@ let iosSupport = system != "x86_64-darwin";
     splicesEval = self: super: {
       haskell = super.haskell // {
         compiler = super.haskell.compiler // {
-          ghcSplices = (super.haskell.compiler.ghc843.override rec {
-            bootPkgs = super.buildPackages.haskell.packages.ghc843;
+          ghcSplices = (super.haskell.compiler.integer-simple.ghc843.override rec {
+            bootPkgs = super.buildPackages.haskell.packages.integer-simple.ghc843;
             inherit (bootPkgs) alex happy hscolour;
           }).overrideAttrs (drv: rec {
             patches = (drv.patches or [])
@@ -27,7 +27,7 @@ let iosSupport = system != "x86_64-darwin";
           });
         };
         packages = super.haskell.packages // {
-          ghcSplices = (super.haskell.packages.ghc843.override {
+          ghcSplices = (super.haskell.packages.integer-simple.ghc843.override {
             buildHaskellPackages = self.buildPackages.haskell.packages.ghcSplices;
             ghc = self.buildPackages.haskell.compiler.ghcSplices;
           });
@@ -46,11 +46,15 @@ let iosSupport = system != "x86_64-darwin";
     };
     androidPICPatches = self: super: (optionalAttrs super.targetPlatform.useAndroidPrebuilt {
       haskell = super.haskell // {
-        compiler = lib.mapAttrs (n: v: v.overrideAttrs (drv:
-          optionalAttrs (builtins.elem n ["ghc843" "ghcHEAD"]) {
-          patches = (drv.patches or [])
-                    ++ [ ./android/patches/force-relocation.patch ];
-        })) super.haskell.compiler;
+        compiler = super.haskell.compiler // {
+          integer-simple = super.haskell.compiler.integer-simple // {
+            ghc843 = super.haskell.compiler.integer-simple.ghc843
+                     .overrideAttrs (drv: {
+              patches = (drv.patches or [])
+                      ++ [ ./android/patches/force-relocation.patch ];
+            });
+          };
+        };
       };
     });
     nixpkgsArgs = {
