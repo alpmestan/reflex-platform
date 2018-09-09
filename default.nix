@@ -77,12 +77,12 @@ let iosSupport = system != "x86_64-darwin";
       android = nixpkgs.lib.mapAttrs (_: args: nixpkgsFunc (nixpkgsArgs // args)) rec {
         aarch64 = {
           system = "x86_64-linux";
-          overlays = nixpkgsArgs.overlays ++ [androidPICPatches];
+          overlays = [androidPICPatches] ++ nixpkgsArgs.overlays;
           crossSystem = nixpkgs.lib.systems.examples.aarch64-android-prebuilt;
         };
         aarch32 = {
           system = "x86_64-linux";
-          overlays = nixpkgsArgs.overlays ++ [androidPICPatches];
+          overlays = [androidPICPatches] ++ nixpkgsArgs.overlays;
           crossSystem = nixpkgs.lib.systems.examples.armv7a-android-prebuilt;
         };
         # Back compat
