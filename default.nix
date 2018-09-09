@@ -34,10 +34,12 @@ let iosSupport = system != "x86_64-darwin";
 
     appleLibiconvHack = self: super: {
       darwin = super.darwin // {
-        libiconv = super.darwin.libiconv.overrideAttrs (_:
-        lib.optionalAttrs (self.hostPlatform != self.buildPlatform) {
-          postInstall = "rm $out/include/libcharset.h $out/include/localcharset.h";
-          configureFlags = ["--disable-shared" "--enable-static"];
+        libiconv =
+          if self.hostPlatform == self.buildPlatform
+          then super.darwin.libiconv
+          else super.darwin.libiconv.overrideAttrs (o: {
+            postInstall = "rm $out/include/libcharset.h $out/include/localcharset.h";
+            configureFlags = ["--disable-shared" "--enable-static"];
         });
       };
     };
@@ -72,40 +74,40 @@ let iosSupport = system != "x86_64-darwin";
     nixpkgs = nixpkgsFunc (nixpkgsArgs // { inherit system; });
     inherit (nixpkgs) fetchurl fetchgit fetchgitPrivate fetchFromGitHub;
     nixpkgsCross = {
-      android = lib.mapAttrs (_: args: nixpkgsFunc (nixpkgsArgs // args)) rec {
+      android = nixpkgs.lib.mapAttrs (_: args: nixpkgsFunc (nixpkgsArgs // args)) rec {
         aarch64 = {
           system = "x86_64-linux";
           overlays = nixpkgsArgs.overlays ++ [androidPICPatches];
-          crossSystem = lib.systems.examples.aarch64-android-prebuilt;
+          crossSystem = nixpkgs.lib.systems.examples.aarch64-android-prebuilt;
         };
         aarch32 = {
           system = "x86_64-linux";
           overlays = nixpkgsArgs.overlays ++ [androidPICPatches];
-          crossSystem = lib.systems.examples.armv7a-android-prebuilt;
+          crossSystem = nixpkgs.lib.systems.examples.armv7a-android-prebuilt;
         };
         # Back compat
         arm64Impure = builtins.trace "Warning: nixpkgsCross.android.arm64Impure has been deprecated, using nixpkgsCross.android.aarch64 instead." aarch64;
         armv7aImpure = builtins.trace "Warning: nixpkgsCross.android.armv7aImpure has been deprecated, using nixpkgsCross.android.aarch32 instead." aarch32;
       };
-      ios = lib.mapAttrs (_: args: nixpkgsFunc (nixpkgsArgs // args)) rec {
+      ios = nixpkgs.lib.mapAttrs (_: args: nixpkgsFunc (nixpkgsArgs // args)) rec {
         simulator64 = {
           system = "x86_64-darwin";
           overlays = nixpkgsArgs.overlays ++ [appleLibiconvHack];
-          crossSystem = lib.systems.examples.iphone64-simulator // {
+          crossSystem = nixpkgs.lib.systems.examples.iphone64-simulator // {
             sdkVer = iosSdkVersion;
           };
         };
         aarch64 = {
           system = "x86_64-darwin";
           overlays = nixpkgsArgs.overlays ++ [appleLibiconvHack];
-          crossSystem = lib.systems.examples.iphone64 // {
+          crossSystem = nixpkgs.lib.systems.examples.iphone64 // {
             sdkVer = iosSdkVersion;
           };
         };
         aarch32 = {
           system = "x86_64-darwin";
           overlays = nixpkgsArgs.overlays ++ [appleLibiconvHack];
-          crossSystem = lib.systems.examples.iphone32 // {
+          crossSystem = nixpkgs.lib.systems.examples.iphone32 // {
             sdkVer = iosSdkVersion;
           };
         };
@@ -139,7 +141,7 @@ let iosSupport = system != "x86_64-darwin";
       chmod -R +w .
       patch -p1 <"$patch"
     '';
-in with nixpkgs.lib; with haskellLib;
+in with haskellLib;
 let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCabal pkg f;
     replaceSrc = pkg: src: version: overrideCabal pkg (drv: {
       inherit src version;
@@ -148,7 +150,7 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
       editedCabalFile = null;
     });
     combineOverrides = old: new: (old // new) // {
-      overrides = lib.composeExtensions old.overrides new.overrides;
+      overrides = nixpkgs.lib.composeExtensions old.overrides new.overrides;
     };
     makeRecursivelyOverridable = x: old: x.override old // {
       override = new: makeRecursivelyOverridable x (combineOverrides old new);
@@ -168,16 +170,15 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
       src = "file://${src}";
       sha256 = null;
     });
-    addReflexTraceEventsFlag = drv: if enableTraceReflexEvents
-      then appendConfigureFlag drv "-fdebug-trace-events"
-      else drv;
-    addFastWeakFlag = drv: if useFastWeak
-      then enableCabalFlag drv "fast-weak"
-      else drv;
+    addReflexTraceEventsFlag = if enableTraceReflexEvents
+      then drv: appendConfigureFlag drv "-fdebug-trace-events"
+      else drv: drv;
+    addFastWeakFlag = if useFastWeak
+      then drv: enableCabalFlag drv "fast-weak"
+      else drv: drv;
     ghcjsPkgs = ghcjs: self: super: {
       ghcjs = ghcjs.overrideAttrs (o: {
-        patches = (o.patches or [])
-                ++ optional useFastWeak ./fast-weak.patch;
+        patches = (o.patches or []) ++ optional useFastWeak ./fast-weak.patch;
         phases = [ "unpackPhase" "patchPhase" "buildPhase" ];
       });
     };
@@ -269,9 +270,9 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
             jsaddlePkgs = import (hackGet ./jsaddle) self;
             gargoylePkgs = self.callPackage (hackGet ./gargoyle) self;
             ghcjsDom = import (hackGet ./ghcjs-dom) self;
-            addReflexOptimizerFlag = drv: if useReflexOptimizer
-              then appendConfigureFlag drv "-fuse-reflex-optimizer"
-              else drv;
+            addReflexOptimizerFlag = if useReflexOptimizer
+              then drv: appendConfigureFlag drv "-fuse-reflex-optimizer"
+              else drv: drv;
         in {
 
         ########################################################################
@@ -377,14 +378,14 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
     ];
   };
   ghcjs8_2_2 = (extendHaskellPackages ghcjs8_2_2Packages).override {
-    overrides = lib.foldr lib.composeExtensions (_: _: {}) [
+    overrides = nixpkgs.lib.foldr nixpkgs.lib.composeExtensions (_: _: {}) [
       (optionalExtension enableExposeAllUnfoldings haskellOverlays.exposeAllUnfoldings)
       haskellOverlays.ghcjs
       (optionalExtension useTextJSString haskellOverlays.textJSString)
     ];
   };
   ghcjs8_4_3 = (extendHaskellPackages ghcjs8_4_3Packages).override {
-    overrides = lib.foldr lib.composeExtensions (_: _: {}) [
+    overrides = nixpkgs.lib.foldr nixpkgs.lib.composeExtensions (_: _: {}) [
       (optionalExtension enableExposeAllUnfoldings haskellOverlays.exposeAllUnfoldings)
       haskellOverlays.ghcjs-8_4
       (optionalExtension useTextJSString haskellOverlays.textJSString)
@@ -392,13 +393,13 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
   };
   ghcjs = ghcjs8_4_3;
   ghcHEAD = (extendHaskellPackages nixpkgs.pkgs.haskell.packages.ghcHEAD).override {
-    overrides = lib.foldr lib.composeExtensions (_: _: {}) [
+    overrides = nixpkgs.lib.foldr nixpkgs.lib.composeExtensions (_: _: {}) [
       (optionalExtension enableExposeAllUnfoldings haskellOverlays.exposeAllUnfoldings)
       haskellOverlays.ghc-head
     ];
   };
   ghc8_4_3 = (extendHaskellPackages nixpkgs.pkgs.haskell.packages.ghc843).override {
-    overrides = lib.foldr lib.composeExtensions (_: _: {}) [
+    overrides = nixpkgs.lib.foldr nixpkgs.lib.composeExtensions (_: _: {}) [
       (optionalExtension enableExposeAllUnfoldings haskellOverlays.exposeAllUnfoldings)
       (ghcjsPkgs (useTextJSStringAsBootPkg (nixpkgs.pkgs.haskell.compiler.ghcjs84.override {
         ghcjsSrc = fetchgit {
@@ -412,20 +413,20 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
     ];
   };
   ghc8_2_2 = (extendHaskellPackages nixpkgs.pkgs.haskell.packages.ghc822).override {
-    overrides = lib.foldr lib.composeExtensions (_: _: {}) [
+    overrides = nixpkgs.lib.foldr nixpkgs.lib.composeExtensions (_: _: {}) [
       (optionalExtension enableExposeAllUnfoldings haskellOverlays.exposeAllUnfoldings)
       (ghcjsPkgs nixpkgs.pkgs.haskell.compiler.ghcjs82)
       haskellOverlays.ghc-8_2
     ];
   };
   ghc8_0_2 = (extendHaskellPackages nixpkgs.pkgs.haskell.packages.ghc802).override {
-    overrides = lib.foldr lib.composeExtensions (_: _: {}) [
+    overrides = nixpkgs.lib.foldr nixpkgs.lib.composeExtensions (_: _: {}) [
       (optionalExtension enableExposeAllUnfoldings haskellOverlays.exposeAllUnfoldings)
       haskellOverlays.ghc-8
     ];
   };
   ghc7 = (extendHaskellPackages nixpkgs.pkgs.haskell.packages.ghc7103).override {
-    overrides = lib.foldr lib.composeExtensions (_: _: {}) [
+    overrides = nixpkgs.lib.foldr nixpkgs.lib.composeExtensions (_: _: {}) [
       (optionalExtension enableExposeAllUnfoldings haskellOverlays.exposeAllUnfoldings)
       haskellOverlays.ghc-7
     ];
