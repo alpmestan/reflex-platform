@@ -43,7 +43,7 @@ let iosSupport = system != "x86_64-darwin";
         });
       };
     };
-    androidPICPatches = self: super: (optionalAttrs super.targetPlatform.useAndroidPrebuilt {
+    androidPICPatches = self: super: {
       haskell = super.haskell // {
         compiler = super.haskell.compiler // {
           integer-simple = super.haskell.compiler.integer-simple // {
@@ -55,7 +55,7 @@ let iosSupport = system != "x86_64-darwin";
           };
         };
       };
-    });
+    };
     nixpkgsArgs = {
       config = {
         permittedInsecurePackages = [
