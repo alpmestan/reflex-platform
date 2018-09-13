@@ -382,6 +382,7 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
       (optionalExtension enableExposeAllUnfoldings haskellOverlays.exposeAllUnfoldings)
       haskellOverlays.ghc-8_4
       haskellOverlays.saveSplices
+      haskellOverlays.integer-simple
     ];
   };
   ghcjs8_2 = (extendHaskellPackages ghcjs8_2Packages).override {
@@ -444,6 +445,7 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
       haskellOverlays.ghc-8_4
       haskellOverlays.android
       haskellOverlays.loadSplices
+      haskellOverlays.integer-simple
     ];
   };
   ghcAndroidAarch32 = (extendHaskellPackages nixpkgsCross.android.aarch32.pkgs.haskell.packages.integer-simple.ghcSplices).override {
@@ -452,6 +454,7 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
       haskellOverlays.ghc-8_4
       haskellOverlays.android
       haskellOverlays.loadSplices
+      haskellOverlays.integer-simple
     ];
   };
   ghcIosSimulator64 = (extendHaskellPackages nixpkgsCross.ios.simulator64.pkgs.haskell.packages.integer-simple.ghcSplices).override {
@@ -460,6 +463,7 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
       haskellOverlays.ghc-8_4
       haskellOverlays.ios
       haskellOverlays.loadSplices
+      haskellOverlays.integer-simple
     ];
   };
   ghcIosAarch64 = (extendHaskellPackages nixpkgsCross.ios.aarch64.pkgs.haskell.packages.integer-simple.ghcSplices).override {
@@ -468,6 +472,7 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
       haskellOverlays.ghc-8_4
       haskellOverlays.ios
       haskellOverlays.loadSplices
+      haskellOverlays.integer-simple
     ];
   };
   ghcIosAarch32 = (extendHaskellPackages nixpkgsCross.ios.aarch32.pkgs.haskell.packages.integer-simple.ghcSplices).override {
@@ -476,6 +481,7 @@ let overrideCabal = pkg: f: if pkg == null then null else haskellLib.overrideCab
       haskellOverlays.ghc-8_4
       haskellOverlays.ios
       haskellOverlays.loadSplices
+      haskellOverlays.integer-simple
     ];
   };
   #TODO: Separate debug and release APKs

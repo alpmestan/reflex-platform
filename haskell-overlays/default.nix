@@ -67,4 +67,7 @@ rec {
     inherit haskellLib;
     inherit (nixpkgs) lib;
   };
+  integer-simple = import ./integer-simple.nix {
+    inherit haskellLib;
+  };
 }
