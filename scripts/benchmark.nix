@@ -45,26 +45,22 @@ let pkgs = reflex-platform.nixpkgs;
         src = js-framework-benchmark-src + /webdriver-ts;
         preInstall = "yarn --offline run build-prod";
         inherit shellHook;
-        yarnLock = ./benchmark-artifacts/webdriver-ts/yarn.lock;
       };
       webdriver-ts-results = mkYarnPackage {
         name = "webdriver-ts-results";
         src = js-framework-benchmark-src + /webdriver-ts-results;
         preInstall = "yarn --offline run build-prod";
         inherit shellHook;
-        yarnLock = ./benchmark-artifacts/webdriver-ts-results/yarn.lock;
       };
       vanillajs-keyed = mkYarnPackage {
         name = "vanillajs-keyed";
         src = js-framework-benchmark-src + /vanillajs-keyed;
         preInstall = "yarn --offline run build-prod";
         inherit shellHook;
-        yarnLock = ./benchmark-artifacts/vanillajs-keyed/yarn.lock;
       };
       js-framework-benchmark = mkYarnPackage {
         name = "js-framework-benchmark";
         src = js-framework-benchmark-src;
-        yarnLock = ./benchmark-artifacts/js-framework-benchmark/yarn.lock;
         inherit shellHook;
       };
     };
